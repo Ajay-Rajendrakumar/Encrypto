@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+
 }
 
 .App-logo {
@@ -13,7 +14,7 @@
   }
 }
 
-.App-header {
+  .App-header {
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
@@ -35,4 +36,99 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+  /* .mainContainer{
+  margin-top: 70px;
+  margin-left:70px ;
+  width: 95%;
+}
+
+
+  .nav-tabs .nav-link.active{
+  border-bottom:4px solid #42b3f4;
+  color:rgb(0, 135, 214);
+  
+}
+
+  .nav-tabs .nav-link{
+  color:grey;
+
+} */
+.main{
+  background-color: rgb(17, 16, 16);
+  
+}
+
+ .mainContainer{
+  margin-top: 70px;
+  margin-left:70px ;
+  width: 95%;
+  background-color: rgb(17, 16, 16);
+}
+
+ .nav-tabs{
+  border: none;
+}
+ .nav-tabs .nav-link{
+  background-color: rgb(17, 16, 16);;
+  color:gray;
+  border: 1px solid  rgb(17, 17, 17);
+
+}
+ .nav-tabs .nav-link.active{
+  border-bottom:4px solid #5f5f5f;
+  background-color: rgb(17, 16, 16);
+  color:white;
+  
+}
+
+
+
+ .card{
+  background-color: rgb(26, 24, 24);
+  color:rgb(177, 177, 177);
+  border-color: rgb(43, 44, 44);
+
+}
+.modal-body, .modal-footer, .modal-content{
+  background-color: rgb(26, 24, 24);
+  color:rgb(177, 177, 177);
+  border-color: rgb(43, 44, 44);
+
+}
+
+
+.card-header,.modal-header{
+  filter: brightness(80%);
+}
+.btn{
+  filter: brightness(85%);
+}
+.row{
+  border-color: rgb(43, 44, 44)!important;
+}
+
+
+ input,select{
+  background-color: rgb(26, 24, 24)!important;
+  color: white  !important;
+  border-color:rgb(75, 75, 75)!important ;
+}
+
+.text-primary{
+  color: rgb(133, 133, 133) !important;
+}
+ ::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+
+}
+
+
+.positionAbsolute{
+  position: absolute;
+  z-index: 10;
+  background-color: black;
+  margin-top: -2%;
+
 }
