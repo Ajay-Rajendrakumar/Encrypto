@@ -45,6 +45,26 @@ class Dashboard extends Component {
             })
         this.setState({error_text:""})
     }
+    getImage=(item)=>{
+        let {user_data}={...this.props}
+        let fd=new FormData()
+        fd.append('userId',item['userId'])
+        fd.append('invoice',item['Invoice Number'])
+        this.setState({loading:true})
+        this.props.distributer(fd,"getImage").then(response => {
+            if(response['status']===200){
+                    this.setState({currentImage:response['data']})
+                    var imgtag = document.getElementById("image");
+                    imgtag.src=response['data']
+            }else{ 
+                this.toasterHandler("error", response['msg'] || "Cant reach the server")
+            }
+            }).catch((err)=>{
+            this.toasterHandler("error", err)
+            })
+        this.setState({error_text:""})
+    }
+
     toasterHandler = (type, msg) => {
         toast[type](msg, {
             position: toast.POSITION.TOP_RIGHT,
@@ -52,7 +72,7 @@ class Dashboard extends Component {
         this.setState({loading:false})
     }
     render() {
-        let {bill_component,currentList}={...this.state}
+        let {bill_component,currentList,currentImage}={...this.state}
        
         return (
             <div className="flex row">
@@ -66,11 +86,12 @@ class Dashboard extends Component {
                     <Card className="col-lg-8 h6 mt-4">
                       <CardHeader>
                             {<div className="flex row bg-info font-weight-bold h6 text-light p-3">
-                                        <div className="col-lg-2">Sno</div>
+                                        <div className="col-lg-1">Sno</div>
                                         <div className="col-lg-2">Bill Date</div>
                                         <div className="col-lg-2">Invoice Number</div>
                                         <div className="col-lg-3">Company </div>
-                                        <div className="col-lg-3">Estimater Delivery </div>
+                                        <div className="col-lg-2">Estimater Delivery </div>
+                                        <div className="col-lg-2">Actions </div>
                                         </div>}
                             </CardHeader>      
                             <CardBody className="row flex">
@@ -80,16 +101,20 @@ class Dashboard extends Component {
                             {currentList && currentList.map((item,ind)=>
 
                                         <div  className="row d-flex col-lg-12">
-                                        <div className="col-lg-2">{ind+1}</div>
+                                        <div className="col-lg-1">{ind+1}</div>
                                         <div className="col-lg-2">{item['Bill Date']}</div>
                                         <div className="col-lg-2">{item['Invoice Number']}</div>
                                         <div className="col-lg-3">{item['Company']}</div>
-                                        <div className="col-lg-3">{item['Estimated Delivery']}</div>
+                                        <div className="col-lg-2">{item['Estimated Delivery']}</div>
+                                        <div className="col-lg-2">
+                                                <i className="fa fa-eye text-light" onClick={e=>this.getImage(item)}></i>
+                                        </div>
                                         </div>
                                 )}
                              </CardBody>             
                     </Card>
                     </div> 
+                    <img id="image"></img>
                 </div>
                
             </div>
