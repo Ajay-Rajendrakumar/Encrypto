@@ -1,3 +1,4 @@
+import base64
 from flask import Blueprint
 from flask import request,jsonify
 import os
@@ -10,13 +11,15 @@ import urllib
 from tkinter import *
 import os
 import PIL
+from base64 import b64decode, b64encode
+from flask import send_from_directory
+from Crypto.Cipher import AES
 
 invoice_api = Blueprint('invoice_api', __name__)
 
 INVOICE_TABLE="invoice_info"
 
 iv=b'|\xe4)@\xd7\x8c\xa7\xb5i\x9c\x03#\xfek\x99\xf6'
-key=b'|\xe4)@\xd7\x8c\xa7\xb5i\x9c\x03#\xfek\x99\xf6'
 
 @invoice_api.route('/uploadInvoice',methods = ['POST', 'GET'])
 def uploadInvoice():
@@ -25,28 +28,31 @@ def uploadInvoice():
     date=request.form['date']
     estimate=request.form['estimate']
     userId=request.form['userId']
+    pin=request.form['key']
+    key=os.urandom(16)
     res={}
     res[invoice]={
         "Company":company,
-        "Invoice Number":invoice,
-        "Bill Date":date,
-        "Estimated Delivery":estimate,
+        "InvoiceNumber":invoice,
+        "BillDate":date,
+        "EstimatedDelivery":estimate,
         "userId":userId,
+
+        "encryptKey":b64encode(key).decode('utf-8')
     }
     picture = request.files["image"]
     error=""
     try:
-        # storage=getStorage()  
-        # db=getConnection()
-        # doc_ref = db.collection(INVOICE_TABLE).document(userId)
-        # doc_ref.set(res,merge=True)
-        # fileName="BE/"+(userId)+"/"+str(invoice)+".png"
-        # print(fileName)
-        # storage.child(fileName).put(picture)
-        # key=os.urandom(16)
-        
-        Encrypter(picture,key)
-        Decrypter(key)
+        storage=getStorage()  
+        db=getConnection()
+        doc_ref = db.collection(INVOICE_TABLE).document(userId)
+        doc_ref.set(res,merge=True)
+
+        file_data=Encrypter(picture,key)
+        fileName="BE/"+(userId)+"/"+str(invoice)+".enc"
+
+        storage.child(fileName).put(file_data)
+
         
 
     except Exception as e:
@@ -61,22 +67,11 @@ def Encrypter(input_file,key):
     input_data = input_file.read()
     cfb_cipher = AES.new(key, AES.MODE_CFB, iv)
     enc_data = cfb_cipher.encrypt(input_data)    
-    enc_file = open("Temp/samp.enc", "wb")
-    enc_file.write(enc_data)
-    enc_file.close()
+    # enc_file = open("Temp/samp.enc", "wb")
+    # enc_file.write(enc_data)
+    # enc_file.close()
+    return enc_data
 
-def Decrypter(key):
-    file_name="Temp/samp.enc"
-    enc_file2 = open(file_name,"rb")
-    enc_data2 = enc_file2.read()
-    enc_file2.close()
-    # os.remove(file_name)
-    cfb_decipher = AES.new(key, AES.MODE_CFB, iv)
-    plain_data = (cfb_decipher.decrypt(enc_data2))
-    imageStream = io.BytesIO(plain_data)
-    imageFile = PIL.Image.open(imageStream)
-    imageFile=imageFile.convert('RGB')
-    imageFile.save((file_name[:-8])+"1.jpg")
 
 @invoice_api.route('/invoiceList',methods = ['POST', 'GET'])
 def invoiceList():
@@ -87,8 +82,10 @@ def invoiceList():
         doc_ref = db.collection(INVOICE_TABLE).document(userId).get()
         result=[]
         invoices=doc_ref.to_dict()
-        for invoice in (invoices).keys():
-            result.append(invoices[invoice])
+        if invoices is not None:
+            for invoice in (invoices).keys():
+                result.append(invoices[invoice])
+
     except Exception as e:
         error=e
     if not error:
@@ -101,18 +98,57 @@ def invoiceList():
 def getImage():
     userId=request.form['userId']
     invoice=request.form['invoice']
+    given_key=request.form['encryptKey']
     error=""
     try:
-        fileName="BE/"+(userId)+"/"+str(invoice)+".png"
+        fileName="BE/"+(userId)+"/"+str(invoice)+".enc"
         storage=getStorage()  
-        print(fileName)
-        #url=storage.child(fileName).download("Temp/",str(invoice)+".png")
-
-        url=storage.child(fileName).get_url(str(invoice)+".png")
+        print(fileName,"Temp/"+str(userId)+".enc")
+        storage.child(fileName).download("","Temp/"+str(userId)+".enc")  
+        key=b64decode(given_key)
+        file=Decrypter(str(userId)+".enc",key,userId)   
+        # url=storage.child(fileName).get_url(str(invoice)+".png")
     except Exception as e:
         error=e
     if not error:
-        output_json={"data":url,"status":200}
+        output_json={"data":file,"status":200}
     else:
         output_json={"msg":str(error),"status":400}
     return jsonify(output_json)
+
+
+@invoice_api.route('/deleteInvoice',methods = ['POST', 'GET'])
+def deleteInvoice():
+    userId=request.form['userId']
+    invoice=request.form['invoice']
+    error=""
+    try:
+        db=getConnection()
+        db.collection(INVOICE_TABLE).where('Invoice Number', '==', invoice).delete()
+    except Exception as e:
+        error=e
+    if not error:
+        output_json={"data":"Delete Successful","status":200}
+    else:
+        output_json={"msg":str(error),"status":400}
+    return jsonify(output_json)
+
+
+def Decrypter(filename,key,userId):
+    file_name="Temp/"+filename
+    enc_file2 = open(file_name,"rb")
+    enc_data2 = enc_file2.read()
+    enc_file2.close()
+    os.remove(file_name)
+    cfb_decipher = AES.new(key, AES.MODE_CFB, iv)
+    plain_data = (cfb_decipher.decrypt(enc_data2))
+    imageStream = io.BytesIO(plain_data)
+    imageFile = PIL.Image.open(imageStream)
+    imageFile=imageFile.convert('RGB')
+    saved_file=userId+".jpg"
+    imageFile.save("Temp/"+saved_file)
+    return saved_file
+
+@invoice_api.route('/Image/<path:filename>',methods = ['POST', 'GET'])  
+def send_Img_file(filename):  
+      return send_from_directory("Temp/", filename)

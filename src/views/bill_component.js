@@ -25,7 +25,10 @@ class Bill extends Component {
     
    
     componentDidMount(){
-        
+        let {invoiceData}={...this.state}
+        invoiceData["date"]=moment().format('YYYY-MM-DD')
+        invoiceData["estimate"]=moment().format('YYYY-MM-DD')
+        this.setState({invoiceData})
         
     }
     handleInputChange=(e)=>{
@@ -69,7 +72,8 @@ class Bill extends Component {
             this.setState({loading:true})
             this.props.distributer(fd,"uploadInvoice").then(response => {
                 if(response['status']===200){
-
+                        this.toasterHandler("success","Invoice Added Successfully")
+                        this.setState({loading:false},()=>this.props.close())
                 }else{ 
                   this.toasterHandler("error", response['msg'] || "Cant reach the server")
                 }
@@ -89,6 +93,8 @@ class Bill extends Component {
             error_text="Invalid Company!"
         }else if( !("invoice" in invoiceData) ||invoiceData['invoice']===""){
             error_text="Invalid Invoice Number!"
+        }else if( !("key" in invoiceData) ||invoiceData['key']===""){
+            error_text="Invalid PIN!"
         }else if( !("date" in invoiceData) ||invoiceData['date']===""){
             error_text="Invalid Date!"
         }else if( !("estimate" in invoiceData) ||invoiceData['estimate']===""){
@@ -111,7 +117,7 @@ class Bill extends Component {
 
     render() {
         
-        let {invoiceData,error_text,invoiceImage,invoiceFile}={...this.state}
+        let {invoiceData,error_text,invoiceImage,invoiceFile,loading}={...this.state}
        
         return (
             <div className="row d-flex justify-content-center positionAbsolute col-lg-12">
@@ -121,21 +127,25 @@ class Bill extends Component {
                                 </CardHeader>
                                 <CardBody className="mt-3">
                                         <div className="row d-flex justify-content-center mt-n3">
-                                            <div className="col-lg-3  p-2">
+                                            <div className="col-lg-2  p-2">
                                                 <Label>Company</Label>
-                                                <Input type="text" value={(invoiceData['company'] || "")} name="company" onChange={e=>this.handleInputChange(e)}></Input>
+                                                <Input type="text" value={(invoiceData['company'] || "")} name="company" onChange={e=>this.handleInputChange(e)} autoComplete="off"></Input>
                                             </div>
-                                            <div className="col-lg-3 p-2">
+                                            <div className="col-lg-2 p-2">
                                                 <Label>Invoice Number</Label>
-                                                <Input type="text" value={(invoiceData['invoice'] || "")}  name="invoice" onChange={e=>this.handleInputChange(e)}></Input>
+                                                <Input type="text" value={(invoiceData['invoice'] || "")}  name="invoice" onChange={e=>this.handleInputChange(e)} autoComplete="off"></Input>
+                                            </div>
+                                            <div className="col-lg-2 p-2">
+                                                <Label>PIN</Label>
+                                                <Input type="text" value={(invoiceData['key'] || "")}  name="key" onChange={e=>this.handleInputChange(e)} autoComplete="off"></Input>
                                             </div>
                                             <div className="col-lg-3  p-2">
                                                 <Label>Invoice Number</Label>
-                                                <Input type="date" value={(invoiceData['date'] || "")}  name="date" onChange={e=>this.handleInputChange(e)}></Input>
+                                                <Input type="date" value={(invoiceData['date'] || "")}  name="date" onChange={e=>this.handleInputChange(e)} autoComplete="off"></Input>
                                             </div>
                                             <div className="col-lg-3  p-2">
                                                 <Label>Estimated Delivery</Label>
-                                                <Input type="date" value={(invoiceData['estimate'] || "")}  name="estimate" onChange={e=>this.handleInputChange(e)}></Input>
+                                                <Input type="date" value={(invoiceData['estimate'] || "")}  name="estimate" onChange={e=>this.handleInputChange(e)} autoComplete="off"></Input>
                                             </div>
                                             <div className="col-lg-12  p-3"> 
                                                 <button className="btn btn-success float-right btn-sm" onClick={e=>document.getElementById('upImage').click()} disabled={invoiceFile}><i className="fa fa-upload mr-2"></i>Upload Invoice</button>
@@ -157,10 +167,18 @@ class Bill extends Component {
                                 </CardBody>
                                 <CardFooter className="border-top border-light">     
                                                 <div className="float-right  p-2"> 
-                                                    <button className="btn btn-danger" onClick={e=>this.props.close()}>Close</button>
+                                                    <button className="btn btn-danger" onClick={e=>this.props.close()} disabled={loading}>Close</button>
                                                 </div>                
                                                 <div className="float-right  p-2"> 
-                                                    <button className="btn btn-primary" onClick={e=>this.saveInvoice()} disabled={!invoiceFile}><i className="fa fa-save mr-2"></i>Upload</button>
+                                                   {!loading?
+                                                    <button className="btn btn-primary" onClick={e=>this.saveInvoice()} disabled={!invoiceFile}> 
+                                                        <i className="fa fa-save mr-2"></i>Upload
+                                                    </button>
+                                                   :
+                                                    <button className="btn btn-primary" disabled={!invoiceFile}>
+                                                        <div className="spinner-border text-light" role="status"></div>
+                                                    </button>
+                                                    }
                                                 </div>
                                                 
                                 </CardFooter>

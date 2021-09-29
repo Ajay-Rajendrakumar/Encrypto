@@ -12,7 +12,9 @@ import _ from 'lodash';
 import * as basic from "../store/actions/basic.action.js";
 import moment from "moment";
 import Bill from './bill_component.js'
-
+import BillView from './bill_view.js';
+import { pythonUrl } from '../config.js';
+import bill_view from './bill_view.js';
 
 class Dashboard extends Component {
     constructor(props) {
@@ -20,12 +22,15 @@ class Dashboard extends Component {
         this.state = {
             bill_component:false,
             currentList:[],
+            loading:false,
+            bill_view:false,
+            bill_Data:{},
         }
     }
     
    
     componentDidMount(){
-        // let {user_data}={...this.props}
+
         this.InvoiceList()
         
     }
@@ -36,7 +41,7 @@ class Dashboard extends Component {
         this.setState({loading:true})
         this.props.distributer(fd,"invoiceList").then(response => {
             if(response['status']===200){
-                    this.setState({currentList:response['data']})
+                    this.setState({currentList:response['data'],loading:false})
             }else{ 
                 this.toasterHandler("error", response['msg'] || "Cant reach the server")
             }
@@ -45,25 +50,24 @@ class Dashboard extends Component {
             })
         this.setState({error_text:""})
     }
-    getImage=(item)=>{
-        let {user_data}={...this.props}
+ 
+    deleteInvoice=(item)=>{
         let fd=new FormData()
         fd.append('userId',item['userId'])
-        fd.append('invoice',item['Invoice Number'])
-        this.setState({loading:true})
-        this.props.distributer(fd,"getImage").then(response => {
+        fd.append('invoice',item['InvoiceNumber'])
+        if(window.confirm("Are you sure?")){
+        this.props.distributer(fd,"deleteInvoice").then(response => {
             if(response['status']===200){
-                    this.setState({currentImage:response['data']})
-                    var imgtag = document.getElementById("image");
-                    imgtag.src=response['data']
+                    this.toasterHandler('success',response['data'])
             }else{ 
                 this.toasterHandler("error", response['msg'] || "Cant reach the server")
             }
             }).catch((err)=>{
             this.toasterHandler("error", err)
             })
-        this.setState({error_text:""})
+        }
     }
+
 
     toasterHandler = (type, msg) => {
         toast[type](msg, {
@@ -72,7 +76,7 @@ class Dashboard extends Component {
         this.setState({loading:false})
     }
     render() {
-        let {bill_component,currentList,currentImage}={...this.state}
+        let {bill_component,currentList,loading,bill_view,bill_Data}={...this.state}
        
         return (
             <div className="flex row">
@@ -80,13 +84,18 @@ class Dashboard extends Component {
                     <button className="btn btn-sm btn-primary float-right" onClick={e=>this.setState({bill_component:true})}><i className="fa fa-plus mr-2    ">New Invoice</i></button>
                     <div className="col-lg-12 d-flex justify-content-center">
                     {bill_component &&
-                 <div className="col-lg-12 positionAbsolute">    
-                        <Bill close={e=>this.setState({bill_component:false})} ></Bill>
-                </div>}
+                        <div className="col-lg-12 positionAbsolute">    
+                            <Bill close={e=>this.setState({bill_component:false})} ></Bill>
+                        </div>}
+                        {bill_view &&
+                        <div className="col-lg-12 positionAbsolute">    
+                            <BillView close={e=>this.setState({bill_view:false})} bill_Data={bill_Data}></BillView>
+                        </div>
+                        }
                     <Card className="col-lg-8 h6 mt-4">
                       <CardHeader>
                             {<div className="flex row bg-info font-weight-bold h6 text-light p-3">
-                                        <div className="col-lg-1">Sno</div>
+                                        <div className="col-lg-1" onClick={e=>this.InvoiceList()}>Sno</div>
                                         <div className="col-lg-2">Bill Date</div>
                                         <div className="col-lg-2">Invoice Number</div>
                                         <div className="col-lg-3">Company </div>
@@ -100,17 +109,24 @@ class Dashboard extends Component {
                             </div>} */}
                             {currentList && currentList.map((item,ind)=>
 
-                                        <div  className="row d-flex col-lg-12">
+                                        <div  className="row m-1 p-3 d-flex col-lg-12">
                                         <div className="col-lg-1">{ind+1}</div>
-                                        <div className="col-lg-2">{item['Bill Date']}</div>
-                                        <div className="col-lg-2">{item['Invoice Number']}</div>
+                                        <div className="col-lg-2">{item['BillDate']}</div>
+                                        <div className="col-lg-2">{item['InvoiceNumber']}</div>
                                         <div className="col-lg-3">{item['Company']}</div>
-                                        <div className="col-lg-2">{item['Estimated Delivery']}</div>
+                                        <div className="col-lg-2">{item['EstimatedDelivery']}</div>
                                         <div className="col-lg-2">
-                                                <i className="fa fa-eye text-light" onClick={e=>this.getImage(item)}></i>
+                                                <i className="fa fa-eye text-light mr-2 c-pointer" onClick={e=>this.setState({bill_Data:item,bill_view:true})}></i>
+                                                <i className="fa fa-trash text-danger c-pointer" onClick={e=>this.deleteInvoice(item)}></i>
                                         </div>
                                         </div>
                                 )}
+                                <div className="d-flex justify-content-center col-lg-12">
+                                            {loading?         
+                                                <div className="spinner-border text-light" role="status"></div>
+                                                :   
+                                                currentList && currentList.length<=0 && <span className="text-danger"><i className="fa fa-exclamation-circle mr-1"></i>No Invoices Found!</span>}
+                                        </div>
                              </CardBody>             
                     </Card>
                     </div> 

@@ -101,16 +101,16 @@ class Login extends Component {
                                         <div className="row d-flex justify-content-center mt-n3">
                                             <div className="col-lg-10 m-2 p-2">
                                                 <Label>Username</Label>
-                                                <Input type="text" value={(userData['username'] || "")} name="username" onChange={e=>this.handleInputChange(e)}></Input>
+                                                <Input type="text" value={(userData['username'] || "")} name="username" onChange={e=>this.handleInputChange(e)} autoComplete="off"></Input>
                                             </div>
                                             <div className="col-lg-10 m-2 p-2">
                                                 <Label>Password</Label>
-                                                <Input type="password" value={(userData['password'] || "")}  name="password" onChange={e=>this.handleInputChange(e)}></Input>
+                                                <Input type="password" value={(userData['password'] || "")}  name="password" onChange={e=>this.handleInputChange(e)} autoComplete="off"></Input>
                                             </div>
                                             {currentSection!=="login" && 
                                                 <div className="col-lg-10 m-2 p-2">
                                                 <Label>ReEnter Password </Label>
-                                                <Input type="password" value={(userData['repassword'] || "")} name="repassword" onChange={e=>this.handleInputChange(e)}></Input>
+                                                <Input type="password" value={(userData['repassword'] || "")} name="repassword" onChange={e=>this.handleInputChange(e)} autoComplete="off"></Input>
                                                 </div>
                                             }
 

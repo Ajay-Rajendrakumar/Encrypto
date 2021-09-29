@@ -7,7 +7,8 @@ let api={
   "signin":"/userSignin",
   "uploadInvoice":"/uploadInvoice",
   "invoiceList":"/invoiceList",
-  "getImage":"/getImage"
+  "getImage":"/getImage",
+  "deleteInvoice":"/deleteInvoice",
 }
  
 
