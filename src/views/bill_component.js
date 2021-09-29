@@ -137,7 +137,7 @@ class Bill extends Component {
                                             </div>
                                             <div className="col-lg-2 p-2">
                                                 <Label>PIN</Label>
-                                                <Input type="text" value={(invoiceData['key'] || "")}  name="key" onChange={e=>this.handleInputChange(e)} autoComplete="off"></Input>
+                                                <Input type="password" value={(invoiceData['key'] || "")}  name="key" onChange={e=>this.handleInputChange(e)} autoComplete="off"></Input>
                                             </div>
                                             <div className="col-lg-3  p-2">
                                                 <Label>Invoice Number</Label>

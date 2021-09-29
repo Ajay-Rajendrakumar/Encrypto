@@ -10,6 +10,8 @@ import Layout from './layouts/index';
 
 import LOGIN from './views/login_component';
 import DASHBOARD from './views/dashBoard'
+import USER from './views/user_component'
+import SHARE from './views/share_component';
 const history = createBrowserHistory({forceRefresh:true});
 
 
@@ -33,6 +35,24 @@ function App() {
                     <div className="mainContainer" >
                       <Layout/>
                       <DASHBOARD/>
+                    </div>
+                </>
+              )}/>
+               <Route exact={true} path="/user" render={() => (
+                <>
+                
+                    <div className="mainContainer" >
+                      <Layout/>
+                      <USER/>
+                    </div>
+                </>
+              )}/>
+              <Route exact={true} path="/share" render={() => (
+                <>
+                
+                    <div className="mainContainer" >
+                      <Layout/>
+                      <SHARE/>
                     </div>
                 </>
               )}/>

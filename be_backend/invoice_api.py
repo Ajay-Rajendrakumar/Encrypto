@@ -31,13 +31,14 @@ def uploadInvoice():
     pin=request.form['key']
     key=os.urandom(16)
     res={}
+ 
     res[invoice]={
         "Company":company,
         "InvoiceNumber":invoice,
         "BillDate":date,
         "EstimatedDelivery":estimate,
         "userId":userId,
-
+        "pin":(int(invoice)*int(pin)),
         "encryptKey":b64encode(key).decode('utf-8')
     }
     picture = request.files["image"]
@@ -98,16 +99,27 @@ def invoiceList():
 def getImage():
     userId=request.form['userId']
     invoice=request.form['invoice']
+    pin=request.form['userPIN']
     given_key=request.form['encryptKey']
     error=""
+    file=""
     try:
-        fileName="BE/"+(userId)+"/"+str(invoice)+".enc"
-        storage=getStorage()  
-        print(fileName,"Temp/"+str(userId)+".enc")
-        storage.child(fileName).download("","Temp/"+str(userId)+".enc")  
-        key=b64decode(given_key)
-        file=Decrypter(str(userId)+".enc",key,userId)   
-        # url=storage.child(fileName).get_url(str(invoice)+".png")
+        db=getConnection()
+        doc_ref = db.collection(INVOICE_TABLE).document(userId).get()
+        invoices=doc_ref.to_dict()
+        if invoices is not None:
+            if invoice in invoices:
+                given_PIN=int(invoice)*int(pin)
+                if given_PIN != invoices[invoice]['pin']:
+                    error="Cannot Access the Invoice, Invalid PIN"
+                else:
+                    fileName="BE/"+(userId)+"/"+str(invoice)+".enc"
+                    storage=getStorage()  
+                    print(fileName,"Temp/"+str(userId)+".enc")
+                    storage.child(fileName).download("","Temp/"+str(userId)+".enc")  
+                    key=b64decode(given_key)
+                    file=Decrypter(str(userId)+".enc",key,userId)   
+                    # url=storage.child(fileName).get_url(str(invoice)+".png")
     except Exception as e:
         error=e
     if not error:
@@ -124,7 +136,7 @@ def deleteInvoice():
     error=""
     try:
         db=getConnection()
-        db.collection(INVOICE_TABLE).where('Invoice Number', '==', invoice).delete()
+        db.collection(INVOICE_TABLE).where('InvoiceNumber', '==', invoice).delete()
     except Exception as e:
         error=e
     if not error:

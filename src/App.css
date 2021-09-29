@@ -125,15 +125,18 @@
 }
 
 .positionAbsolute{
-  position: fixed;
+  position: absolute;
   z-index: 10;
-  background-color: black;
+  
   margin-top: -2%;
-  height: 100%;
-  width: 100%;
+
 
 }
 
 .c-pointer{
   cursor: pointer;
+}
+
+input[type=number] {
+  -webkit-text-security: disc;
 }

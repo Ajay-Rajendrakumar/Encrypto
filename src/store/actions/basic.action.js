@@ -9,6 +9,11 @@ let api={
   "invoiceList":"/invoiceList",
   "getImage":"/getImage",
   "deleteInvoice":"/deleteInvoice",
+  "userList":"/userList",
+  "addFriend":"/addFriend",
+  "removeFriend":'/removeFriend',
+  "shareInvoice":"/shareInvoice",
+  "shareList":"/shareList"
 }
  
 

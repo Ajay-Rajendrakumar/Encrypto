@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {
     Card,CardFooter,CardBody,CardHeader,
     Label,
-   Input,Modal,ModalBody,ModalFooter
+   Input,Modal,ModalBody,ModalFooter,ModalHeader
   } from "reactstrap";
 import _ from 'lodash';
 import * as basic from "../store/actions/basic.action.js";
@@ -25,6 +25,7 @@ class Dashboard extends Component {
             loading:false,
             bill_view:false,
             bill_Data:{},
+            modal:false,
         }
     }
     
@@ -73,10 +74,48 @@ class Dashboard extends Component {
         toast[type](msg, {
             position: toast.POSITION.TOP_RIGHT,
         });
-        this.setState({loading:false})
+        this.setState({loading:false,loading1:false})
+    }
+
+    shareBill=(item)=>{
+        let {user_data}={...this.props}  
+        this.setState({loading1:true})      
+        this.props.distributer({'userId':user_data['userId']},"userList").then(response => {
+            if(response['status']===200){
+                    response=response['data']
+                    this.setState({loading1:false,modal:true,ModalData:item,friends:response['friend']})
+
+            }else{ 
+                this.toasterHandler("error", response['msg'] || "Cant reach the server")
+            }
+            }).catch((err)=>{
+            this.toasterHandler("error", err)
+            })
+    }
+    share=()=>{
+        let {user_data}={...this.props}  
+        let {ModalData,selectedFriend,friends}={...this.state}  
+        console.log(selectedFriend)
+        let obj={
+            'userId':user_data['userId'],
+            "frdId":selectedFriend,
+            "frdname":friends[selectedFriend],
+            "name":user_data['user']['name'],
+            "invoice":ModalData,
+        }      
+        this.props.distributer(obj,"shareInvoice").then(response => {
+            if(response['status']===200){
+                    this.toasterHandler("success",response['data'])
+
+            }else{ 
+                this.toasterHandler("error", response['msg'] || "Cant reach the server")
+            }
+            }).catch((err)=>{
+            this.toasterHandler("error", err)
+            })
     }
     render() {
-        let {bill_component,currentList,loading,bill_view,bill_Data}={...this.state}
+        let {bill_component,currentList,loading,bill_view,bill_Data,modal,ModalData,friends,selectedFriend,loading1}={...this.state}
        
         return (
             <div className="flex row">
@@ -92,14 +131,16 @@ class Dashboard extends Component {
                             <BillView close={e=>this.setState({bill_view:false})} bill_Data={bill_Data}></BillView>
                         </div>
                         }
+                   
                     <Card className="col-lg-8 h6 mt-4">
-                      <CardHeader>
-                            {<div className="flex row bg-info font-weight-bold h6 text-light p-3">
-                                        <div className="col-lg-1" onClick={e=>this.InvoiceList()}>Sno</div>
+                      <CardHeader className="text-center">
+                            <div className="h3 p-3">Invoice List<button className="btn btn-sm btn-secondary  mb-2 ml-3" onClick={e=>this.InvoiceList()}> <i className="fa fa-refresh"> </i> </button></div>
+                            {<div className="flex row bg-info font-weight-bold h6 text-light p-3  ">
+                                        <div className="col-lg-1" >Sno</div>
                                         <div className="col-lg-2">Bill Date</div>
                                         <div className="col-lg-2">Invoice Number</div>
-                                        <div className="col-lg-3">Company </div>
-                                        <div className="col-lg-2">Estimater Delivery </div>
+                                        <div className="col-lg-2">Company </div>
+                                        <div className="col-lg-3">Estimated Delivery </div>
                                         <div className="col-lg-2">Actions </div>
                                         </div>}
                             </CardHeader>      
@@ -109,28 +150,59 @@ class Dashboard extends Component {
                             </div>} */}
                             {currentList && currentList.map((item,ind)=>
 
-                                        <div  className="row m-1 p-3 d-flex col-lg-12">
+                                        <div  className="row m-1 p-2 d-flex col-lg-12 text-center">
                                         <div className="col-lg-1">{ind+1}</div>
                                         <div className="col-lg-2">{item['BillDate']}</div>
                                         <div className="col-lg-2">{item['InvoiceNumber']}</div>
-                                        <div className="col-lg-3">{item['Company']}</div>
-                                        <div className="col-lg-2">{item['EstimatedDelivery']}</div>
+                                        <div className="col-lg-2">{item['Company']}</div>
+                                        <div className="col-lg-3">{item['EstimatedDelivery']}</div>
                                         <div className="col-lg-2">
                                                 <i className="fa fa-eye text-light mr-2 c-pointer" onClick={e=>this.setState({bill_Data:item,bill_view:true})}></i>
+                                                {
+                                                    !loading1?
+                                                    <i className="fa fa-share text-success mr-2 c-pointer" onClick={e=>this.shareBill(item)}></i>
+                                                    :
+                                                    <div className=" spinner-border text-light spinner-border-sm mr-2 mt-n1" role="status"></div>
+                                                }
                                                 <i className="fa fa-trash text-danger c-pointer" onClick={e=>this.deleteInvoice(item)}></i>
                                         </div>
                                         </div>
                                 )}
                                 <div className="d-flex justify-content-center col-lg-12">
                                             {loading?         
-                                                <div className="spinner-border text-light" role="status"></div>
+                                                <div className="spinner-border text-light spinner-border-sm" role="status"></div>
                                                 :   
                                                 currentList && currentList.length<=0 && <span className="text-danger"><i className="fa fa-exclamation-circle mr-1"></i>No Invoices Found!</span>}
                                         </div>
                              </CardBody>             
                     </Card>
+                    <Modal isOpen={modal} size="lg" className="p-2">
+                            <ModalHeader>Share Invoice</ModalHeader>
+                            <ModalBody className=" flex      p-5">
+                                {!_.isEmpty(ModalData) && Object.keys(ModalData).map((key,val)=>
+                                        (key!=="encryptKey" && key!=="userId" && key!=="pin") &&
+                                        <div key={key} className="col-lg-8 p-2">
+                                            <Label>{key}</Label>
+                                            <Input value={ModalData[key]} disabled></Input>
+                                    </div>
+                                )}
+                                    <div className="col-lg-8 p-2">
+                                            <Label>{"Share To"}</Label>
+                                            <Input  type="select" onClick={e=>this.setState({selectedFriend:e.target.value})}>
+                                                <option val={""}>{""}</option>    
+                                                {friends && Object.keys(friends).map((key)=>
+                                                    <option value={key}>{friends[key]}</option>
+                                                )}
+                                            </Input>
+                                    </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                    <button className="btn btn-success" onClick={e=>this.share()}> Share</button>
+                                    <button className="btn btn-danger" onClick={e=>this.setState({modal:false})}>Cancel</button>
+                            </ModalFooter>
+                    </Modal>
                     </div> 
-                    <img id="image"></img>
+                    
                 </div>
                
             </div>

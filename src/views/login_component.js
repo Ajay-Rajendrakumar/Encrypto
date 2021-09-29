@@ -47,10 +47,15 @@ class Login extends Component {
             this.setState({loading:true})
             this.props.distributer(userData,currentSection).then(response => {
                 if(response['status']===200){
-                    this.props.dataStoreSetter(response['data'],"USER_DATA")
-                    this.setState({loading:false},()=>{
-                        this.props.history.push("/dashboard");
-                    })
+                    if(currentSection==="login"){
+                        this.props.dataStoreSetter(response['data'],"USER_DATA")
+                        this.setState({loading:false},()=>{
+                            this.props.history.push("/dashboard");
+                        })
+                    }else{
+                        this.ChangeSection()
+                        this.toasterHandler("success","Sign In Successfull")
+                    }
                 }else{ 
                   this.toasterHandler("error", response['msg'] || "Cant reach the server")
                 }
