@@ -96,16 +96,19 @@ class Dashboard extends Component {
         let {user_data}={...this.props}  
         let {ModalData,selectedFriend,friends}={...this.state}  
         console.log(selectedFriend)
+        this.setState({loading:true})
         let obj={
             'userId':user_data['userId'],
             "frdId":selectedFriend,
             "frdname":friends[selectedFriend],
             "name":user_data['user']['name'],
             "invoice":ModalData,
+            "username":user_data['user']['name']
         }      
         this.props.distributer(obj,"shareInvoice").then(response => {
             if(response['status']===200){
                     this.toasterHandler("success",response['data'])
+                    this.setState({loading1:false,modal:true,ModalData:{}})
 
             }else{ 
                 this.toasterHandler("error", response['msg'] || "Cant reach the server")
@@ -197,8 +200,8 @@ class Dashboard extends Component {
                                     </div>
                             </ModalBody>
                             <ModalFooter>
-                                    <button className="btn btn-success" onClick={e=>this.share()}> Share</button>
-                                    <button className="btn btn-danger" onClick={e=>this.setState({modal:false})}>Cancel</button>
+                                    <button className="btn btn-success" onClick={e=>this.share()}  disabled={loading}> {!loading? "Share":<div className="spinner-border text-light spinner-border-sm" role="status"></div>}</button>
+                                    <button className="btn btn-danger" onClick={e=>this.setState({modal:false})} disabled={loading}>Cancel</button>
                             </ModalFooter>
                     </Modal>
                     </div> 

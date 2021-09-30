@@ -176,7 +176,7 @@ class Bill extends Component {
                                                     </button>
                                                    :
                                                     <button className="btn btn-primary" disabled={!invoiceFile}>
-                                                        <div className="spinner-border text-light" role="status"></div>
+                                                        <div className="spinner-border text-light spinner-border-sm" role="status"></div>
                                                     </button>
                                                     }
                                                 </div>

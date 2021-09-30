@@ -28,3 +28,8 @@
     display: inline-block;
 }
  
+.name{
+    position: absolute;
+    left: 50px;
+    top:-4px;
+}

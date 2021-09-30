@@ -100,7 +100,7 @@ class BillView extends Component {
                                                 <Input value={userPin}  placeholder="Enter PIN ..." pattern="[0-9]*" inputmode="numeric" type="number" onChange={e=>this.setState({userPin:e.target.value})}></Input>
                                             </div>
                                             <div  className="col-lg-3">
-                                                <button className="btn btn-primary btn-sm" onClick={e=>this.getImage(bill_Data)} disabled={loading}>{loading?<div className="spinner-border text-light" role="status"></div> :"View Invoice"}</button>
+                                                <button className="btn btn-primary btn-sm" onClick={e=>this.getImage(bill_Data)} disabled={loading}>{loading?<div className="spinner-border text-light spinner-border-sm" role="status"></div> :"View Invoice"}</button>
                                             </div>
                                             
                                         </div>

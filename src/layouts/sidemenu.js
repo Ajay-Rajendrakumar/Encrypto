@@ -27,16 +27,16 @@ import '../styles/sidemenu.css'
             <div className="side-menu ">
                 <div className='menu-icon '> <i className="fas fa-angle-right fa-lg "></i></div>
                 <div className="sidemenu-body ">
-                <div className="mb-2 mt-4 sideContent " onClick={e => { this.TabChange("/dashboard")}} >
-                        < i className =  {"fas fa-lg fa-line-chart mr-1"+(tab==="/"?" text-warning":"")}  ></i>
+                <div className="mb-3 mt-4 sideContent " onClick={e => { this.TabChange("/dashboard")}} >
+                        < i className =  {"fas  fa-line-chart mr-1"+(tab==="/"?" text-warning":"")}  ></i>
                         <span className="ml-3  "> Dashboard</span>
                 </div>
-                <div className="mb-2 mt-4 sideContent " onClick={e => { this.TabChange("/share")}} >
-                        < i className =  {"fas fa-lg fa-share-square mr-1"+(tab==="/"?" text-warning":"")}  ></i>
+                <div className="mb-3 mt-4 sideContent " onClick={e => { this.TabChange("/share")}} >
+                        < i className =  {"fas  fa-share-square mr-1"+(tab==="/"?" text-warning":"")}  ></i>
                         <span className="ml-3  "> Shared Invoice</span>
                 </div>
-                <div className="mb-2 mt-4 sideContent " onClick={e => { this.TabChange("/user")}} >
-                        < i className =  {"fas fa-lg fa-users  mr-1"+(tab==="/"?" text-warning":"")}  ></i>
+                <div className="mb-3 mt-4 sideContent " onClick={e => { this.TabChange("/user")}} >
+                        < i className =  {"fas  fa-users  mr-1"+(tab==="/"?" text-warning":"")}  ></i>
                         <span className="ml-3  "> People</span>
                 </div>
               

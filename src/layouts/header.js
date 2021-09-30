@@ -51,10 +51,10 @@
                     <header className="header">
                         <div className="row  d-flex justify-content-between">
                         <div className="name-profileImage ">BE </div>
-                        <div className=""></div>
-                            <span className="text-light h4 m-4 mr-5">
-                                <i className="fa fa-user mr-1"></i>{ this.props.user_data && this.props.user_data['user']['name']}
-                                <button className="text-danger btn btn-sm c-pointer" onClick={e=>(window.confirm("Are you sure?") && this.props.history.push('/'))}>
+                        <div className=" name m-4 h4 text-info">Bill Encryptor</div>
+                            <span className="text-light h5 m-4 mr-5">
+                                <i className="fa fa-user mr-2"></i>{ this.props.user_data && this.props.user_data['user']['name']}
+                                <button className="ml-2 text-danger btn btn-sm c-pointer" onClick={e=>(window.confirm("Are you sure?") && this.props.history.push('/'))}>
                                     Logout
                             </button>
                             </span>

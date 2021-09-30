@@ -20,18 +20,21 @@ def shareInvoice():
         random_val = ''.join([random.choice(string.ascii_letters+ string.digits) for n in range(8)])
         doc_ref = db.collection(SHARE_TABLE).document(param_user["userId"])
         res[random_val]={
-        "Name":param_user['frdname'],
-        "shareId":param_user['frdId'],
-        "InvoiceNumber":invoice['InvoiceNumber'],
+        "reciever":param_user['frdname'],
+        "recieverId":param_user['frdId'],
+        "InvoiceInfo":invoice,
         "InvoiceUser":param_user['userId'],
+        "userName":param_user['username']
         }
         doc_ref.set(res,merge=True)
         doc_ref = db.collection(SHARE_TABLE).document(param_user['frdId'])
         res[random_val]={
-        "Name":param_user['frdname'],
-        "shareId":param_user['frdId'],
-        "InvoiceNumber":param_user['invoice'],
+        "reciever":param_user['frdname'],
+        "recieverId":param_user['frdId'],
+        "InvoiceInfo":invoice,
         "InvoiceUser":param_user['userId'],
+        "userName":param_user['username']
+
         }
         doc_ref.set(res,merge=True)
     except Exception as e:

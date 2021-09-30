@@ -130,7 +130,7 @@ class Login extends Component {
                                             {!loading?           
                                                 currentSection==="login"?"Login":"Create Account"
                                             :
-                                                <div className="spinner-border text-light" role="status"></div>
+                                                <div className="spinner-border text-light spinner-border-sm" role="status"></div>
                                             }
                                         
                                         </button>

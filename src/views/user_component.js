@@ -48,23 +48,6 @@ class User extends Component {
             })
         this.setState({error_text:""})
     }
- 
-    deleteInvoice=(item)=>{
-        let fd=new FormData()
-        fd.append('userId',item['userId'])
-        fd.append('invoice',item['InvoiceNumber'])
-        if(window.confirm("Are you sure?")){
-        this.props.distributer(fd,"deleteInvoice").then(response => {
-            if(response['status']===200){
-                    this.toasterHandler('success',response['data'])
-            }else{ 
-                this.toasterHandler("error", response['msg'] || "Cant reach the server")
-            }
-            }).catch((err)=>{
-            this.toasterHandler("error", err)
-            })
-        }
-    }
 
 
     toasterHandler = (type, msg) => {
@@ -120,7 +103,7 @@ class User extends Component {
                     <div className="col-lg-12 d-flex justify-content-center">
                     <Card className="col-lg-8 h6 mt-4">
                       <CardHeader className="text-center">
-                            <div className="h3 p-3">{type?"Users ":"Friend "} List
+                            <div className="h3 p-3">{type?"Available Users ":"Friends "}
                             <button className="btn btn-sm btn-secondary  mb-2 ml-3" onClick={e=>this.userList()}> <i className="fa fa-refresh"> </i> </button>
                             <button className="btn btn-sm btn-primary  float-right mb-2 ml-3" onClick={e=>this.ChangeList()}> <i className="fa fa-arrow-h mr-1">Change List </i> </button>
                             </div>
@@ -146,7 +129,7 @@ class User extends Component {
                                 )}
                                 <div className="d-flex justify-content-center col-lg-12">
                                             {loading?         
-                                                <div className="spinner-border text-light" role="status"></div>
+                                                <div className="spinner-border text-light spinner-border-sm" role="status"></div>
                                                 :   null
                                             }
                                         </div>

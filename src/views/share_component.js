@@ -5,33 +5,24 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
     Card,CardFooter,CardBody,CardHeader,
-    Label,
-   Input,Modal,ModalBody,ModalFooter
   } from "reactstrap";
+import {Tab,Tabs} from "react-bootstrap";
 import _ from 'lodash';
 import * as basic from "../store/actions/basic.action.js";
 import moment from "moment";
-import Bill from './bill_component.js'
-import BillView from './bill_view.js';
-import { pythonUrl } from '../config.js';
-import bill_view from './bill_view.js';
-
+import BillView from './bill_view.js'
 class Share extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userList:[],
-            friendList:[],
-            type:true,
-            currentList:{}
+            selfShareList:[],
+            receivedList:[],
+            bill_view:false,
         }
     }
     
-   
     componentDidMount(){
-
-        this.shareList()
-        
+        this.shareList()      
     }
     shareList=()=>{
         let {user_data}={...this.props}        
@@ -41,6 +32,10 @@ class Share extends Component {
                     response=response['data']
                     // this.setState({currentList:response,loading:false})
                     console.log(response)
+                    let self=_.filter(response, function(o) { return o['InvoiceUser']===user_data['userId']; });
+                    let others=_.filter(response, function(o) { return o['InvoiceUser']!==user_data['userId']; });
+                    console.log(self,others)
+                    this.setState({selfShareList:self,receivedList:others,loading:false})
             }else{ 
                 this.toasterHandler("error", response['msg'] || "Cant reach the server")
             }
@@ -58,49 +53,110 @@ class Share extends Component {
         this.setState({loading:false})
     }
 
+    ShowBill=(item)=>{
+        this.setState({bill_Data:item['InvoiceInfo'],bill_view:true})
+    }
+
     render() {
-        let {currentList,loading,type}={...this.state}
+        let {selfShareList,loading,receivedList,bill_view,bill_Data}={...this.state}
        
         return (
             <div className="flex row">
+                {bill_view &&
+                        <div className="col-lg-12 p-3 positionAbsolute">    
+                            <BillView close={e=>this.setState({bill_view:false})} bill_Data={bill_Data}></BillView>
+                        </div>
+                        }
                 <div className="col-lg-12 p-3">
-                    <div className="col-lg-12 d-flex justify-content-center">
-                    <Card className="col-lg-8 h6 mt-4">
-                      <CardHeader className="text-center">
-                            <div className="h3 p-3">{type?"Users ":"Friend "} List
-                            <button className="btn btn-sm btn-secondary  mb-2 ml-3" onClick={e=>this.userList()}> <i className="fa fa-refresh"> </i> </button>
-                            <button className="btn btn-sm btn-primary  float-right mb-2 ml-3" onClick={e=>this.ChangeList()}> <i className="fa fa-arrow-h mr-1">Change List </i> </button>
+                <Tabs defaultActiveKey={"self"} className=" d-flex justify-content-center p-3 h5 ">
+                    <Tab eventKey="self" title="Invoices Shared">
+                            <div className="col-lg-12 d-flex justify-content-center">
+                            <Card className="col-lg-8 h6 mt-4">
+                                <CardHeader className="text-center">
+                                <div className="h3 p-3">Shared Invoices
+                                    <button className="btn btn-sm btn-secondary  mb-2 ml-3" onClick={e=>this.shareList()}> <i className="fa fa-refresh"> </i> </button>
+                                </div>
+                                {<div className="flex row bg-info font-weight-bold h6 text-light p-3  ">
+                                            <div className="col-lg-1" >Sno</div>
+                                            <div className="col-lg-2">Bill Date</div>
+                                            <div className="col-lg-2">Invoice Number</div>
+                                            <div className="col-lg-2">Company </div>
+                                            <div className="col-lg-3">Estimated Delivery </div>
+                                            <div className="col-lg-2" >Shared To</div>
+                                            </div>}
+                                </CardHeader>      
+                                <CardBody className="row flex">
+                                    {(selfShareList) && (selfShareList).map((item,ind)=>
+                                            <div  className="row m-1 p-2 d-flex col-lg-12 text-center">
+                                                <div className="col-lg-1">{ind+1}</div>
+                                                <div className="col-lg-2">{item['InvoiceInfo']['BillDate']}</div>
+                                                <div className="col-lg-2">{item['InvoiceInfo']['InvoiceNumber']}</div>
+                                                <div className="col-lg-2">{item['InvoiceInfo']['Company']}</div>
+                                                <div className="col-lg-3">{item['InvoiceInfo']['EstimatedDelivery']}</div>
+                                                <div className="col-lg-2">{item['userName']}</div>
+                                                
+                                            </div>
+                                    )}
+                                    {loading &&  <div className="row col-lg-12 mb-2 d-flex justify-content-center text-danger">
+                                        <div className="spinner-border text-light spinner-border-sm" role="status"></div>
+                                        </div>
+                                    }
+                                    {selfShareList && selfShareList.length<=0 && <div className="row col-lg-12 d-flex justify-content-center text-danger">
+                                        <i className="text-danger fa fa-exclamation-circle  mr-2"></i>No Invoices Shared!
+                                    </div>
+                                    }
+                                    
+                                </CardBody>  
+                                </Card>           
                             </div>
-                            {<div className="flex row bg-info font-weight-bold h6 text-light p-3  ">
-                                        <div className="col-lg-1" >Sno</div>
-                                        <div className="col-lg-6" >Name</div>
-                                        <div className="col-lg-5" >Action</div>
-                                        </div>}
-                            </CardHeader>      
-                            <CardBody className="row flex">
-                            {/* {<div className="row m-1  border p-3">
-                                <span className="col-lg-12"><Input placeholder="Search..."  type="text" name="filter" value={filterName} onChange={e=>this.handleFilterChange(e.target.value)} /></span>     
-                            </div>} */}
-                            {!_.isEmpty(currentList) && Object.keys(currentList).map((key,ind)=>
-
-                                        <div  className="row m-1 p-2 d-flex col-lg-12 text-center">
-                                        <div className="col-lg-1">{ind+1}</div>
-                                        <div className="col-lg-6">{currentList[key]}</div>
-                                        <div className="col-lg-5">
-                                                <button className={"btn btn-sm "+(type?" btn-success":" btn-danger")}  disabled={!type} onClick={e=>this.Friend(key,currentList[key])}><i className={"fa "+(type?" fa-plus":"fa-minus")}></i> {type?"Add ":"Remove "} Friend</button>
+                    </Tab>
+                    <Tab eventKey="recieved" title="Invoices Recieved"  >
+                    <div className="col-lg-12 d-flex justify-content-center">
+                            <Card className="col-lg-8 h6 mt-4">
+                                <CardHeader className="text-center">
+                                <div className="h3 p-3">Invoices Recieved
+                                    <button className="btn btn-sm btn-secondary  mb-2 ml-3" onClick={e=>this.shareList()}> <i className="fa fa-refresh"> </i> </button>
+                                </div>
+                                {<div className="flex row bg-info font-weight-bold h6 text-light p-3  ">
+                                            <div className="col-lg-1" >Sno</div>
+                                            <div className="col-lg-2">Bill Date</div>
+                                            <div className="col-lg-2">Invoice Number</div>
+                                            <div className="col-lg-2">Company </div>
+                                            <div className="col-lg-2">Estimated Delivery </div>
+                                            <div className="col-lg-2" >From </div>
+                                            <div className="col-lg-1" >Action</div>
+                                      
+                                            </div>}
+                                </CardHeader>      
+                                <CardBody className="row flex">
+                                    {(receivedList) && (receivedList).map((item,ind)=>
+                                            <div  className="row m-1 p-2 d-flex col-lg-12 text-center">
+                                                <div className="col-lg-1">{ind+1}</div>
+                                                <div className="col-lg-2">{item['InvoiceInfo']['BillDate']}</div>
+                                                <div className="col-lg-2">{item['InvoiceInfo']['InvoiceNumber']}</div>
+                                                <div className="col-lg-2">{item['InvoiceInfo']['Company']}</div>
+                                                <div className="col-lg-2">{item['InvoiceInfo']['EstimatedDelivery']}</div>
+                                                <div className="col-lg-2">{item['userName']}</div>
+                                                <div className="col-lg-1" > <i className="fa fa-eye text-light mr-2 c-pointer" onClick={e=>this.ShowBill(item)}></i></div>
+                                      
+                                            </div>
+                                    )}
+                                    {loading &&  <div className="row col-lg-12 mb-2 d-flex justify-content-center text-danger">
+                                        <div className="spinner-border text-light spinner-border-sm" role="status"></div>
                                         </div>
-                                        </div>
-                                )}
-                                <div className="d-flex justify-content-center col-lg-12">
-                                            {loading?         
-                                                <div className="spinner-border text-light" role="status"></div>
-                                                :   null
-                                            }
-                                        </div>
-                             </CardBody>             
-                    </Card>
-                    </div> 
-                    
+                                    }
+                                    
+                                    {receivedList && receivedList.length<=0 && <div className="row col-lg-12 d-flex justify-content-center text-danger">
+                                        <i className="text-danger fa fa-exclamation-circle  mr-2"></i>No Invoices Recieved!
+                                    </div>
+                                    }
+                                    
+                                </CardBody>  
+                                </Card>           
+                            </div>
+                    </Tab>                  
+                </Tabs>
+                  
                 </div>
                
             </div>
