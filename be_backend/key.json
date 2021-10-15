@@ -1,9 +1,0 @@
-{
-    "apiKey": "AIzaSyAv8KDEpHtefofUAdTxiVPGiIBHlY-a1BQ",
-    "authDomain": "billencryptor.firebaseapp.com",
-    "databaseURL": "https://billencryptor-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "projectId": "billencryptor",
-    "storageBucket": "billencryptor.appspot.com",
-    "messagingSenderId": "824226648084",
-    "appId": "1:824226648084:web:28be2e8a369e2757339701"
-  }
