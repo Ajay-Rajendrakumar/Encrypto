@@ -95,7 +95,6 @@ class Dashboard extends Component {
     share=()=>{
         let {user_data}={...this.props}  
         let {ModalData,selectedFriend,friends}={...this.state}  
-        console.log(selectedFriend)
         this.setState({loading:true})
         let obj={
             'userId':user_data['userId'],

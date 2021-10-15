@@ -151,7 +151,7 @@ def Decrypter(filename,key,userId):
     enc_file2 = open(file_name,"rb")
     enc_data2 = enc_file2.read()
     enc_file2.close()
-    os.remove(file_name)
+    # os.remove(file_name)
     cfb_decipher = AES.new(key, AES.MODE_CFB, iv)
     plain_data = (cfb_decipher.decrypt(enc_data2))
     imageStream = io.BytesIO(plain_data)
